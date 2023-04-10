@@ -1,0 +1,49 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@500&display=swap');
+
+*{
+    font-family: 'Rokkitt-Thin', sans-serif;
+    transition: color 0.1s ease-in-out, background-color 0.2s ease-in-out, filter 0.2s ease-in-out;
+}
+
+@font-face {
+  font-family: Avenir-Black;
+  src: url("./font/AvenirLTStd-Black.otf") format("opentype");
+}
+
+@font-face {
+  font-family: Avenir-Book;
+  src: url("./font/AvenirLTStd-Book.otf") format("opentype");
+}
+
+@font-face {
+  font-family: Rokkitt-Thin;
+  src: url("./font/Rokkitt/static/Rokkitt-Thin.ttf") format("opentype");
+}
+
+@font-face {
+  font-family: Rokkitt-Light;
+  src: url("./font/Rokkitt/static/Rokkitt-Light.ttf") format("opentype");
+}
+
+.fade-in-section {
+  opacity: 0;
+  /* transform: translateY(10vh); */
+  visibility: hidden;
+  transition: opacity 1.2s ease-out, transform 1.2s ease-out;
+  will-change: opacity, visibility;
+}
+.fade-in-section.is-visible {
+  opacity: 1;
+  transform: none;
+  visibility: visible;
+}
+
+[class*="szh-menu--state-open"] {
+  position: fixed;
+  min-height: 100vh;
+  background-color: #f3f7ff;
+}
