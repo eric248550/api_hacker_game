@@ -18,38 +18,33 @@ import user from '../images/user.png';
 import reload from '../images/reload.png';
 
 const frontend_code = `
-async function request_api(method, url, body) {
+async function getShopItems() {
     try {
-        const response = await (await fetch(url,
-            {
-                method: method,
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: body
-            }
+        const response = await (await fetch(
+            url
         )).json();
-
-        if (response.error) {
-            setAlertInformation({
-                type: "information",
-                isDisplayed: true,
-                content: 'API request error:',
-            });
-            return;
-        }
-
-        const prettyJson = JSON.stringify(response, null, 2);
-        setResponseJson(prettyJson);
+        setShopItems(response);
     }
     catch (e) {
-        setAlertInformation({
-            type: "information",
-            isDisplayed: true,
-            content: 'API request error:',
-        });
+        console.log(e);
     }
 }
+`
+
+const backend_code = `
+app.get('/eshop/items/:owner_name', cors, async (req, res) => {
+    try {
+        const { owner_name } = req.params;
+        const items = await utils.postgreDB_530(\`SELECT * FROM shop_items WHERE owner=$1\`, [owner_name]);
+        res.status(200).send(items);
+    }
+    catch (e) {
+        console.error(e);
+        res.status(500).send({
+            "error": \`unexpected error \${e}\`,
+        });
+    }
+});
 `
 
 const code = `function createStyleObject(classNames, style) {
@@ -99,6 +94,7 @@ export default function Level1() {
     const [requestBody, setRequestBody] = useState();
     const [responseJson, setResponseJson] = useState();
     const [shopItems, setShopItems] = useState();
+    const [hintNow, setHintNow] = useState(0);
 
     const [alertInformation, setAlertInformation] = useState({
         content: "",
@@ -148,13 +144,19 @@ export default function Level1() {
     async function getShopItems() {
         try {
             const response = await (await fetch(
-                'http://localhost:8787/eshop/items/Eric'
+                // 'http://localhost:8787/eshop/items/Eric'
+                'https://api2.aidev-cardano.com/eshop/items/Eric'
             )).json();
             setShopItems(response);
         }
         catch (e) {
             console.log(e);
         }
+    }
+
+    function showHint() {
+        if (hintNow >= 3) return;
+        setHintNow(hintNow + 1);
     }
     return (
         <div className="min-h-screen flex flex-col bg-cover bg-black">
@@ -163,7 +165,6 @@ export default function Level1() {
                     Level 1: Hello Web API
                 </p>
             </div>
-            {/* <div className="relative mx-auto flex flex-row w-5/6 h-60 bg-cover bg-no-repeat bg-[url('./images/board.jpeg')]"> */}
             <div className="relative mt-5 mx-auto flex flex-row w-5/6 h-72">
                 {/* bg board */}
                 <img className='absolute my-auto z-10 w-full h-72' src={board} />
@@ -186,159 +187,179 @@ export default function Level1() {
                     </div>
                 </div>
             </div>
-            {/* fake website / fake postman */}
             <div className='mt-5 mx-auto w-5/6 flex flex-row'>
-                {/* fake website */}
-                <div className='w-1/2 flex flex-col border-[1px] border-white'>
-                    <img className='w-full' src={toolbar}/>
+                <div className='mx-auto w-1/2 flex flex-col'>
+                    {/* fake website */}
+                    <div className='w-full flex flex-col border-[1px] border-white'>
+                        <img className='w-full' src={toolbar}/>
 
-                    <div className='bg-white w-full h-auto'>
-                        {/* member */}
-                        <div className='mt-2 flex flex-row justify-between'>
-                            <p className='ml-2 text-black text-xl'>
-                                E-SHOP
-                            </p>
-                            <div className='flex flex-row'>
-                                <p className='my-auto text-black'>
-                                    Eric
+                        <div className='bg-white w-full h-auto'>
+                            {/* member */}
+                            <div className='mt-2 flex flex-row justify-between'>
+                                <p className='ml-2 text-black text-xl'>
+                                    E-SHOP
                                 </p>
-                                <img className='mx-2 w-8 h-8 rounded-full' src={user}/>
+                                <div className='flex flex-row'>
+                                    <p className='my-auto text-black'>
+                                        Eric
+                                    </p>
+                                    <img className='mx-2 w-8 h-8 rounded-full' src={user}/>
+                                </div>
                             </div>
-                        </div>
-                        {/* reload */}
+                            {/* reload */}
 
-                        <button className='mt-2 mx-auto flex flex-row justify-center' onClick={getShopItems}>
-                            <p className='my-auto text-black'>
-                                Reload
-                            </p>
-                            <img className='ml-2 w-4 h-4' src={reload}/>
-                        </button>
-                        {/* items */}
-                        {shopItems
-                        ?
-                            <div className='p-2 flex flex-wrap justify-center'>
-                                {
-                                    shopItems.map((item) => {
-                                        return (
-                                            <div className='flex flex-col justify-center w-20 h-auto border-black border-[1px] m-2'>
-                                                <div className='mt-2 m-auto w-11/12 bg-white h-auto'>
-                                                    <img src={item.image} className='mt-2 m-auto w-11/12 h-auto transition duration-300 hover:scale-105 hover:drop-shadow-xl'/>
-                                                </div>
-                                                <p className='mt-2 text-center text-base font-extrabold text-[#004D65]'>
-                                                    {item.name}
-                                                </p>
-                
-                                                <button className='transition duration-500 hover:scale-110 hover:drop-shadow-2xl m-auto mt-2 mb-5 bg-[#00C7E2] w-11/12 h-auto font-semibold text-white rounded-xl'>
-                                                    <p>Buy</p>
-                                                    <p>${item.price}</p>
-                                                </button> 
-                                            </div>
-                                        );
-                                    })
-                                }
+                            <button className='mt-2 mx-auto flex flex-row justify-center' onClick={getShopItems}>
+                                <p className='my-auto text-black'>
+                                    Reload
+                                </p>
+                                <img className='ml-2 w-4 h-4' src={reload}/>
+                            </button>
+                            {/* items */}
+                            {shopItems
+                            ?
+                                <div className='p-2 flex flex-wrap justify-center'>
+                                    {
+                                        shopItems.map((item) => {
+                                            return (
+                                                <div className='flex flex-col justify-center w-20 h-auto border-black border-[1px] m-2'>
+                                                    <div className='mt-2 m-auto w-11/12 bg-white h-auto'>
+                                                        <img src={item.image} className='mt-2 m-auto w-11/12 h-auto transition duration-300 hover:scale-105 hover:drop-shadow-xl'/>
+                                                    </div>
+                                                    <p className='mt-2 text-center text-base font-extrabold text-[#004D65]'>
+                                                        {item.name}
+                                                    </p>
                     
-                            </div>
-                        :""
-                        }
-                    </div>
-                </div>
-                {/* fake postman */}
-                <div className='ml-5 mx-auto w-1/2 flex flex-col'>
-                    {/* method / URL / send */}
-                    <div className='mx-auto flex flex-row w-full'>
-                        <div className='w-1/6 flex justify-start'>
-                            <Select
-                                // classNames={{
-                                //     control: (state) =>
-                                //     state.isFocused ? 'border-red-600' : 'border-grey-300',
-                                // }}
-                                styles={customStyles}
-                                placeholder="GET"
-                                onChange={(event) => {
-                                    setRequestMethod(event.value);
-                                }}
-                                options={
-                                    [
-                                        { value: 'GET', label: 'GET'},
-                                        { value: 'POST', label: 'POST'},
-                                    ]
-                                }
-                            />
-                        </div>
-
-                        <input type="text" className='border-[1px] border-white text-white text-sm w-2/3 h-10 text-center bg-black' required 
-                            placeholder="Enter URL or paste text"
-                            onChange={(event) => {
-                                setRequestUrl(event.target.value);
-                            }}
-                        />
-
-                        <button onClick={() => request_api(requestMethod, requestUrl, requestBody)}
-                            className={`w-1/6 border-[1px] border-white text-white hover:text-black hover:bg-white`}>
-                            <p className='m-auto'>
-                            Request
-                            </p>
-                        </button>
-                    </div>
-                        {(requestMethod === 'POST')
-                        ?
-                            <textarea className='mt-2 bg-black border-[1px] border-white text-white text-sm h-28' 
-                                placeholder="Entet request JSON body"
-                                onChange={(event) => {
-                                    setRequestBody(event.target.value);
-                                }}
-                            />
-                        :""
-                        }
-
-
-                    <div className='mt-2 flex flex-col w-full border-[1px] border-white h-auto'>
-                        <div className='w-full bg-[#acacac] h-8 flex'>
-                            <p className='m-auto text-white text-lg'>
-                                Response
-                            </p>
-                        </div>
-                        <pre className="mt-2 mx-1 text-white text-xs break-words overflow-hidden">
-                            {responseJson}
-                        </pre>
-                    </div>
+                                                    <button className='transition duration-500 hover:scale-110 hover:drop-shadow-2xl m-auto mt-2 mb-5 bg-[#00C7E2] w-11/12 h-auto font-semibold text-white rounded-xl'>
+                                                        <p>Buy</p>
+                                                        <p>${item.price}</p>
+                                                    </button> 
+                                                </div>
+                                            );
+                                        })
+                                    }
                         
+                                </div>
+                            :""
+                            }
+                        </div>
+                    </div>
+                    {/* source code */}
+                    <div className='mt-5 w-full flex flex-col border-[1px] border-white'>
+                        <Tabs className='flex flex-col justify-center'>
+                            <TabList className='w-full flex flex-row border-white text-white border-b-[1px] justify-start'>
+                                <Tab>frontend.js</Tab>
+                                <Tab>backend.js</Tab>
+                            </TabList>
+                            <TabPanel>
+                                <div className='flex flex-row border-[1px] border-white'>
+                                    <SyntaxHighlighter wrapLines={true} customStyle={{width: '100%'}} language="javascript" style={vs2015}>
+                                        {frontend_code}
+                                    </SyntaxHighlighter>
+                                </div>
+                            </TabPanel>
+                            <TabPanel>
+                                <div className='flex flex-row border-[1px] border-white'>
+                                    <SyntaxHighlighter wrapLines={true} customStyle={{width: '100%'}} language="javascript" style={vs2015}>
+                                        {backend_code}
+                                    </SyntaxHighlighter>
+                                </div>
+                            </TabPanel>
+
+                        </Tabs>
+                    </div>
+                </div>
+                {/* source code / hint */}
+                <div className='ml-5 mx-auto w-1/2 flex flex-col'>
+                    {/* fake postman */}
+                    <div className='w-full mx-auto flex flex-col'>
+                        {/* method / URL / send */}
+                        <div className='mx-auto flex flex-row w-full'>
+                            <div className='w-1/6 flex justify-start'>
+                                <Select
+                                    // classNames={{
+                                    //     control: (state) =>
+                                    //     state.isFocused ? 'border-red-600' : 'border-grey-300',
+                                    // }}
+                                    styles={customStyles}
+                                    placeholder="GET"
+                                    onChange={(event) => {
+                                        setRequestMethod(event.value);
+                                    }}
+                                    options={
+                                        [
+                                            { value: 'GET', label: 'GET'},
+                                            { value: 'POST', label: 'POST'},
+                                        ]
+                                    }
+                                />
+                            </div>
+
+                            <input type="text" className='border-[1px] border-white text-white text-sm w-2/3 h-10 text-center bg-black' required 
+                                placeholder="Enter URL or paste text"
+                                onChange={(event) => {
+                                    setRequestUrl(event.target.value);
+                                }}
+                            />
+
+                            <button onClick={() => request_api(requestMethod, requestUrl, requestBody)}
+                                className={`w-1/6 border-[1px] border-white text-white hover:text-black hover:bg-white`}>
+                                <p className='m-auto'>
+                                Request
+                                </p>
+                            </button>
+                        </div>
+                            {(requestMethod === 'POST')
+                            ?
+                                <textarea className='mt-2 bg-black border-[1px] border-white text-white text-sm h-28' 
+                                    placeholder="Entet request JSON body"
+                                    onChange={(event) => {
+                                        setRequestBody(event.target.value);
+                                    }}
+                                />
+                            :""
+                            }
+
+
+                        <div className='mt-2 flex flex-col w-full border-[1px] border-white h-auto min-h-[20vh]'>
+                            <div className='w-full bg-[#acacac] h-8 flex'>
+                                <p className='m-auto text-white text-lg'>
+                                    Response
+                                </p>
+                            </div>
+                            <pre className="mt-2 mx-1 text-white text-xs break-words overflow-hidden">
+                                {responseJson}
+                            </pre>
+                        </div>
+                            
+                    </div>
+                    
+                    {/* hint */}
+                    <div className='mt-5 w-full flex flex-col'>
+                        <button className='mx-auto text-white text-2xl' onClick={showHint}>Show hint ({hintNow} / 3)</button>
+
+                        {hintNow > 0 
+                        ?
+                            <p className='text-white text-center text-xl'>- Website developer use console a lot.</p>
+                        
+                        :""
+                        }
+
+                        {hintNow > 1
+                        ?
+                            <p className='text-white text-center text-xl'>- What type of information is API related to?</p>
+                        
+                        :""
+                        }
+                        {hintNow > 2
+                        ?
+                            <p className='text-white text-center text-xl'>- Find something related to netwrok</p>
+                        
+                        :""
+                        }
+                    </div>
                 </div>
             </div>
 
-            <div className='mt-5 mx-auto w-5/6 flex flex-row'>
-                <div className='w-1/2 flex flex-col border-[1px] border-white'>
-                    <Tabs className='flex flex-col justify-center'>
-                        <TabList className='w-full flex flex-row border-white text-white border-b-[1px] justify-start'>
-                            <Tab>frontend.js</Tab>
-                            <Tab>backend.js</Tab>
-                        </TabList>
-                        <TabPanel>
-                            <div className='flex flex-row border-[1px] border-white'>
-                                <SyntaxHighlighter wrapLines={true} customStyle={{width: '100%'}} language="javascript" style={vs2015}>
-                                    {frontend_code}
-                                </SyntaxHighlighter>
-                            </div>
-                        </TabPanel>
-                        <TabPanel>
-                            <div className='flex flex-row border-[1px] border-white'>
-                                <SyntaxHighlighter wrapLines={true} customStyle={{width: '100%'}} language="javascript" style={vs2015}>
-                                    {code}
-                                </SyntaxHighlighter>
-                            </div>
-                        </TabPanel>
-
-                    </Tabs>
-                </div>
-                <div className='w-1/2 flex flex-col'>
-
-
-                </div>
-            </div>
-
-
-
-            {/* http://localhost:8787 */}
             <div className='p-10'></div>
             {alertInformation.isDisplayed && (
                     <AlertModal
