@@ -96,3 +96,23 @@ $ npm run start
 ```
 
 This command serve the static content `dist` directory with a nodejs express server.
+
+## Resource Used
+- Source
+    - Library used: [node-fetch](https://github.com/node-fetch/node-fetch), [react-syntax-highlighter](https://github.com/react-syntax-highlighter/react-syntax-highlighter), [express](https://github.com/expressjs/express), [postgreSQL](https://github.com/postgres/postgres)
+- Research
+    - https://owasp.org/www-pdf-archive/API_Security_Top_10_RC_-_Global_AppSec_AMS.pdf 
+        - API security project that explores the most important 10 API security issue.
+        - I select 7 issue that I think it’s necessary
+    - https://github.com/OWASP/API-Security
+        - A handbook about API security and example scenarios
+        - This gameook into the example and think out to implement in the game
+    - [Game Engagement Theory and Adult Learning](https://journals.sagepub.com/doi/pdf/10.1177/1046878110378587?casa_token=ax2qEefC5coAAAAA:CunM0Dr_nv3kb7eyib1NpTzo-lBSz7IPchy-msA-LRljXEYeA7hiK3KlRb3bjvBINv1eSjnuruExoA)
+        - Learning Engagement Factors
+            - Gaming user experience
+        - Learning game flow theory
+            - Clear instruction
+            - Hint and source code conduct
+        - Engagement model
+            - The mock window makes users engaged.
+            - UI design makes users feel engaged.
