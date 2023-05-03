@@ -48,48 +48,7 @@ app.get('/eshop/items/:owner_name', cors, async (req, res) => {
 });
 `
 
-const code = `function createStyleObject(classNames, style) {
-    return classNames.reduce((styleObject, className) => {
-      return {...styleObject, ...style[className]};
-    }, {});
-  }
-  function createClassNameString(classNames) {
-    return classNames.join(' ');
-  }
-  // this comment is here to demonstrate an extremely long line length, well beyond what you should probably allow in your own code, though sometimes you'll be highlighting code you can't refactor, which is unfortunate but should be handled gracefully
-  function createChildren(style, useInlineStyles) {
-    let childrenCount = 0;
-    return children => {
-      childrenCount += 1;
-      return children.map((child, i) => createElement({
-        node: child,
-        style,
-        useInlineStyles,
-        key:\`code-segment-$\{childrenCount}-$\{i}\`
-      }));
-    }
-  }
-  function createElement({ node, style, useInlineStyles, key }) {
-    const { properties, type, tagName, value } = node;
-    if (type === "text") {
-      return value;
-    } else if (tagName) {
-      const TagName = tagName;
-      const childrenCreator = createChildren(style, useInlineStyles);
-      const props = (
-        useInlineStyles
-        ?
-        { style: createStyleObject(properties.className, style) }
-        :
-        { className: createClassNameString(properties.className) }
-      );
-      const children = childrenCreator(node.children);
-      return <TagName key={key} {...props}>{children}</TagName>;
-    }
-  }
-`;
-
-export default function Level1() {
+export default function Level2() {
     const [requestMethod, setRequestMethod] = useState("GET");
     const [requestUrl, setRequestUrl] = useState();
     const [requestBody, setRequestBody] = useState();
@@ -130,6 +89,7 @@ export default function Level1() {
                 });
                 return;
             }
+
     
             if (response.error) {
                 setAlertInformation({
@@ -144,27 +104,29 @@ export default function Level1() {
             setResponseJson(prettyJson);
             setShopItems(response);
 
-            if (response.message || response.length > 0) {
-                setAlertInformation({
-                    type: "result",
-                    isDisplayed: true,
-                    content: (
-                        <div className="whitespace-pre-line rounded-lg relative min-h-[11rem] bg-[#cacaca] flex-col justify-center flex m-auto w-4/5 border-2 border-r-4 border-b-4 border-black">
-                            <p className='text-xl text-center'>
-                                Congulation, you found the API route!
-                            </p>
-                            <p className='mt-2 text-xl text-center'>
-                                Click the button to take next challenge!
-                            </p>
-
-                            <Link to="/level2" className='mt-5 mx-auto flex rounded-xl hover:brightness-125 bg-green-400 w-60 h-12'>
-                                <p className='m-auto'>
-                                Go to next level
+            if (response.length > 0) {
+                if (response[0].owner === 'Ted') {
+                    setAlertInformation({
+                        type: "result",
+                        isDisplayed: true,
+                        content: (
+                            <div className="whitespace-pre-line rounded-lg relative min-h-[11rem] bg-[#cacaca] flex-col justify-center flex m-auto w-4/5 border-2 border-r-4 border-b-4 border-black">
+                                <p className='text-xl text-center'>
+                                    Congulation, you found what Ted have in his shop!
                                 </p>
-                            </Link>
-                        </div>
-                    ),
-                });
+                                <p className='mt-2 text-xl text-center'>
+                                    Click the button to take next challenge!
+                                </p>
+    
+                                <Link to="/level3" className='mt-5 mx-auto flex rounded-xl hover:brightness-125 bg-green-400 w-60 h-12'>
+                                    <p className='m-auto'>
+                                    Go to next level
+                                    </p>
+                                </Link>
+                            </div>
+                        ),
+                    });
+                }
             }
         }
         catch (e) {
@@ -198,7 +160,7 @@ export default function Level1() {
         <div className="min-h-screen flex flex-col bg-cover bg-black">
             <div className='w-full bg-[#acacac] h-12 flex'>
                 <p className='m-auto text-white text-5xl'>
-                    Level 1: Hello Web API
+                    Level 2: Broken Object Level Authorization
                 </p>
             </div>
             <div className="relative mt-5 mx-auto flex flex-row w-5/6 h-72">
@@ -214,11 +176,11 @@ export default function Level1() {
                             Your Mission
                         </p>
                         <p className='text-white z-20'>
-                            Welcome to the Web API hacker team! Your goal is to find the correct route for a Web API call that request all item in this e-shop.
+                            Your goal now is to hack the API and find the data from Ted's shop.
                         </p>
 
                         <p className='mt-2 text-white z-20'>
-                        Can you find the correct route for this Web API call? Good luck!
+                        Can you find the data from Ted shop? Good luck!
                         </p>
                     </div>
                 </div>
@@ -376,20 +338,20 @@ export default function Level1() {
 
                         {hintNow > 0 
                         ?
-                            <p className='text-white text-center text-xl'>- Website developer use console a lot.</p>
+                            <p className='text-white text-center text-xl'>- Who you are?</p>
                         
                         :""
                         }
 
                         {hintNow > 1
                         ?
-                            <p className='text-white text-center text-xl'>- What type of information is API related to?</p>
+                            <p className='text-white text-center text-xl'>- Are you Eric?</p>
                         
                         :""
                         }
                         {hintNow > 2
                         ?
-                            <p className='text-white text-center text-xl'>- Find something related to netwrok</p>
+                            <p className='text-white text-center text-xl'>- Now you're Ted</p>
                         
                         :""
                         }
